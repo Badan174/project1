@@ -5,13 +5,32 @@ const contextInput = document.getElementById("ai-context");
 const addBtn = document.getElementById("add-btn");
 const aiBtn = document.getElementById("ai-btn");
 const todoList = document.getElementById("todo-list");
+const toastBox = document.getElementById("toast-box"); // Lấy khung thông báo
+
+// --- HÀM HIỂN THỊ THÔNG BÁO (THAY CHO ALERT) ---
+let toastTimeout;
+function showToast(message) {
+  // Gán nội dung
+  toastBox.textContent = message;
+  
+  // Thêm class để hiện ra
+  toastBox.classList.add("show");
+
+  // Nếu đang có đếm ngược cũ thì xóa đi để tránh lỗi
+  if (toastTimeout) clearTimeout(toastTimeout);
+
+  // Sau 3 giây thì tự ẩn đi
+  toastTimeout = setTimeout(() => {
+    toastBox.classList.remove("show");
+  }, 3000);
+}
 
 // --- HÀM TẠO ITEM ---
 function createTodoItem(text, deadline, context) {
   const li = document.createElement("li");
   li.className = "todo-item";
 
-  // --- PHẦN TRÁI ---
+  // PHẦN TRÁI
   const left = document.createElement("div");
   left.className = "todo-left";
 
@@ -21,22 +40,19 @@ function createTodoItem(text, deadline, context) {
   const contentDiv = document.createElement("div");
   contentDiv.className = "todo-content";
 
-  // 1. Tên công việc
   const span = document.createElement("span");
   span.className = "todo-text";
   span.textContent = text;
 
-  // 2. Context (Prompt gốc) - Hiển thị bên dưới
   const contextSpan = document.createElement("div");
   contextSpan.className = "todo-context-display";
   contextSpan.textContent = context;
 
-  // 3. Deadline
   const dateSpan = document.createElement("div");
   dateSpan.className = "todo-deadline-display";
   if (deadline) dateSpan.textContent = `Hạn: ${deadline}`;
 
-  // --- CÁC Ô INPUT ẨN ĐỂ SỬA ---
+  // CÁC Ô INPUT ẨN ĐỂ SỬA
   const editInput = document.createElement("input");
   editInput.className = "edit-input";
   editInput.type = "text";
@@ -51,7 +67,6 @@ function createTodoItem(text, deadline, context) {
   editDateInput.className = "edit-date-input";
   editDateInput.type = "date";
 
-  // Lắp ráp ban đầu
   contentDiv.appendChild(span);
   if (context) contentDiv.appendChild(contextSpan);
   contentDiv.appendChild(dateSpan);
@@ -59,7 +74,7 @@ function createTodoItem(text, deadline, context) {
   left.appendChild(checkbox);
   left.appendChild(contentDiv);
 
-  // --- PHẦN PHẢI ---
+  // PHẦN PHẢI
   const actions = document.createElement("div");
   actions.className = "todo-actions";
   
@@ -76,7 +91,7 @@ function createTodoItem(text, deadline, context) {
   li.appendChild(left);
   li.appendChild(actions);
 
-  // --- LOGIC SỰ KIỆN ---
+  // LOGIC SỰ KIỆN
   let isEditing = false;
 
   function updateDone() {
@@ -100,26 +115,22 @@ function createTodoItem(text, deadline, context) {
 
   deleteBtn.addEventListener("click", () => li.remove());
 
-  // --- LOGIC SỬA ---
+  // LOGIC SỬA
   function toggleEdit() {
     if (isEditing) {
-      // --> LƯU
       const newText = editInput.value.trim();
       const newContext = editContextInput.value.trim();
       const newDate = editDateInput.value;
 
       if (newText !== "") {
-        // Cập nhật biến
         text = newText;
         context = newContext;
         deadline = newDate;
 
-        // Cập nhật hiển thị
         span.textContent = text;
         contextSpan.textContent = context;
         dateSpan.textContent = deadline ? `Hạn: ${deadline}` : "";
 
-        // Reset DOM hiển thị
         contentDiv.innerHTML = "";
         contentDiv.appendChild(span);
         if (context) contentDiv.appendChild(contextSpan);
@@ -128,9 +139,11 @@ function createTodoItem(text, deadline, context) {
         editBtn.textContent = "Sửa";
         editBtn.classList.remove("save-btn");
         isEditing = false;
+        
+        // Thông báo cập nhật thành công
+        showToast("Đã cập nhật công việc!");
       }
     } else {
-      // --> SỬA
       editInput.value = text;
       editContextInput.value = context;
       editDateInput.value = deadline;
@@ -158,50 +171,37 @@ function createTodoItem(text, deadline, context) {
   return li;
 }
 
-// --- LOGIC THÊM TASK (ĐÃ SỬA) ---
+// --- LOGIC THÊM TASK ---
 function addTodo() {
   const text = input.value.trim();
   const deadline = deadlineInput ? deadlineInput.value : "";
   const context = contextInput ? contextInput.value.trim() : "";
 
-  // KIỂM TRA NGHIÊM NGẶT:
-  // Nếu ô tên công việc (Hàng 1) bị trống thì KHÔNG làm gì cả, 
-  // kể cả khi ô Prompt (Hàng 2) đang có chữ.
   if (text === "") {
     if (context !== "") {
-      // Nếu người dùng lỡ nhập vào prompt mà bấm lộn nút Thêm, nhắc nhở họ
-      alert("Bạn đang nhập ở ô Prompt cho AI. Vui lòng bấm nút 'AI' hoặc nhập tên công việc vào ô phía trên để thêm thủ công.");
+      // Thay alert bằng showToast
+      showToast("⚠️ Bạn đang nhập ở ô Prompt. Hãy bấm nút 'AI' hoặc nhập tên việc ở trên!");
     } else {
-      alert("Vui lòng nhập tên công việc!");
+      // Thay alert bằng showToast
+      showToast("⚠️ Vui lòng nhập tên công việc!");
     }
     return;
   }
 
-  // Nếu có text (tên công việc), thì thêm bình thường
-  // (Context lúc này đóng vai trò là ghi chú phụ thêm cho công việc đó)
   const item = createTodoItem(text, deadline, context);
   todoList.appendChild(item);
 
-  // Reset ô nhập
   input.value = "";
   if (deadlineInput) deadlineInput.value = "";
   if (contextInput) contextInput.value = "";
   input.focus();
 }
 
-// Gắn sự kiện cho nút Thêm
 if (addBtn) addBtn.addEventListener("click", addTodo);
-
-// Enter ở ô Tên công việc -> Thêm
 if (input) input.addEventListener("keydown", (e) => { if(e.key === "Enter") addTodo(); });
-
-// Enter ở ô Prompt AI -> KHÔNG GỌI addTodo nữa (để tránh nhầm lẫn)
-// Nếu muốn Enter ở đây kích hoạt nút AI thì dùng logic bên dưới
 if (contextInput) {
     contextInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
-             // Logic: Enter ở đây thì kích hoạt nút AI (giả lập click nút AI)
-             // Chứ không kích hoạt nút Thêm
              if (aiBtn) aiBtn.click();
         }
     });
@@ -212,14 +212,11 @@ if (aiBtn) {
     aiBtn.addEventListener("click", () => {
         const promptText = contextInput.value.trim();
         if (!promptText) {
-            alert("Vui lòng nhập yêu cầu cho AI!");
+            showToast("⚠️ Vui lòng nhập yêu cầu cho AI!");
             return;
         }
         
         console.log("Gửi Prompt lên AI:", promptText);
-        alert(`[Giả lập AI]: Đang xử lý "${promptText}"...`);
-        
-        // Sau này khi AI trả về kết quả, bạn sẽ gọi:
-        // createTodoItem("Tên việc AI tạo", "Ngày AI tạo", promptText);
+        showToast(`🤖 [AI] Đang xử lý: "${promptText}"...`);
     });
 }

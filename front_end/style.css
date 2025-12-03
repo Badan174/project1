@@ -231,7 +231,7 @@ body {
 .input-row-secondary {
   margin-top: 12px;
   display: flex;
-  gap: 10px; /* Khoảng cách giữa ô nhập và nút AI */
+  gap: 52px; /* Khoảng cách giữa ô nhập và nút AI */
 }
 
 /* Ô nhập Context/Prompt */
@@ -295,4 +295,34 @@ body {
   margin-top: 4px;
   background: #fafafa;
 }
+/* --- TOAST NOTIFICATION (Thông báo đẹp) --- */
+#toast-box {
+  position: fixed;
+  top: -100px; /* Ban đầu ẩn ở tít trên cao */
+  left: 50%;
+  transform: translateX(-50%); /* Căn giữa màn hình */
+  
+  background: rgba(18, 3, 36, 0.95); /* Màu nền tối đậm */
+  color: #fff;
+  padding: 15px 25px;
+  border-radius: 50px; /* Bo tròn như viên thuốc */
+  border: 1px solid #d000ff; /* Viền tím phát sáng */
+  box-shadow: 0 0 20px rgba(208, 0, 255, 0.4);
+  
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1000; /* Nằm trên tất cả mọi thứ */
+  transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Hiệu ứng nảy */
+  
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 300px;
+  justify-content: center;
+  text-align: center;
+}
 
+/* Class này được JS thêm vào để hiện thông báo */
+#toast-box.show {
+  top: 30px; /* Trượt xuống vị trí hiển thị */
+}

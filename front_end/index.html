@@ -2,40 +2,27 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>To-do List</title>
+  <title> To-do List</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="toast-box" class="toast-hidden"></div>
+
   <main class="page">
     <h1 class="page-title">To-do List</h1>
-
     <section class="todo-card">
       <div class="input-row">
-        <input
-          id="todo-input"
-          type="text"
-          placeholder="Nhập việc cần làm..."
-        />
-        <input
-          id = "todo-deadline"
-          type = "date"
-        />
+        <input id="todo-input" type="text" placeholder="Tên công việc..." />
+        <input id="todo-deadline" type="date" />
         <button id="add-btn">Thêm</button>
       </div>
-      <div class = "input-row-secondary">
-        <input 
-          id = "ai-context"
-          type = "text"
-          placeholder="Nhập yêu cầu (VD: Nhắc tôi họp team vào 9h sáng mai)..."
-          />
-          <button id="ai-btn" title="Tự động xếp lịch (Coming soon)">✨ AI</button>
+
+      <div class="input-row-secondary">
+        <input id="ai-context" type="text" placeholder="Nhập yêu cầu (VD: Nhắc tôi họp team vào 9h sáng mai)..." />
+        <button id="ai-btn" title="Tự động xếp lịch"> AI</button>
       </div>
 
-    </class>
-
-      <ul id="todo-list">
-        
-      </ul>
+      <ul id="todo-list"></ul>
     </section>
   </main>
 
