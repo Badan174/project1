@@ -1,4 +1,3 @@
-/* Toàn trang */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,7 +9,6 @@ body {
   background: #f4f5fb;
 }
 
-/* Khung chính */
 .page {
   min-height: 100vh;
   display: flex;
@@ -19,14 +17,12 @@ body {
   padding-top: 80px;
 }
 
-/* Tiêu đề */
 .page-title {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 24px;
 }
 
-/* Thẻ todo */
 .todo-card {
   width: min(700px, 90vw);
   background: #ffffff;
@@ -35,16 +31,14 @@ body {
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
 }
 
-/* Hàng input + nút */
 .input-row {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  flex-wrap: wrap;
 }
 
-/* Ô nhập text */
 #todo-input {
-  flex: 2; /* Chiếm phần lớn diện tích */
+  flex: 2;
   min-width: 200px;
   padding: 10px 14px;
   border-radius: 10px;
@@ -53,7 +47,6 @@ body {
   font-size: 14px;
 }
 
-/* Ô nhập deadline mới */
 #todo-deadline {
   flex: 1;
   padding: 10px 14px;
@@ -65,12 +58,12 @@ body {
   cursor: pointer;
 }
 
-#todo-input:focus, #todo-deadline:focus {
+#todo-input:focus,
+#todo-deadline:focus {
   border-color: #7b5cff;
   box-shadow: 0 0 0 2px rgba(123, 92, 255, 0.2);
 }
 
-/* Nút Thêm */
 #add-btn {
   padding: 10px 24px;
   border: none;
@@ -82,7 +75,6 @@ body {
   background: linear-gradient(135deg, #7b5cff, #5f3bff);
 }
 
-/* Danh sách công việc */
 #todo-list {
   list-style: none;
   margin-top: 18px;
@@ -106,7 +98,6 @@ body {
   border-color: #eee;
 }
 
-/* Phần bên trái: checkbox + text + ngày */
 .todo-left {
   display: flex;
   align-items: center;
@@ -122,7 +113,6 @@ body {
   cursor: pointer;
 }
 
-/* Container chứa text và ngày */
 .todo-content {
   display: flex;
   flex-direction: column;
@@ -145,13 +135,11 @@ body {
   color: #999;
 }
 
-/* Phần nút bấm bên phải */
 .todo-actions {
   display: flex;
   gap: 8px;
 }
 
-/* Style chung cho nút con */
 .action-btn {
   border: none;
   padding: 6px 12px;
@@ -161,26 +149,24 @@ body {
   transition: background 0.2s;
 }
 
-/* Nút Sửa */
 .edit-btn {
-  background: #e3f2fd; /* Màu xanh nhạt */
+  background: #e3f2fd;
   color: #1976d2;
 }
+
 .edit-btn:hover {
   background: #bbdefb;
 }
 
-/* Nút Xóa */
 .delete-btn {
-  background: #ffebee; /* Màu đỏ nhạt */
+  background: #ffebee;
   color: #c62828;
 }
+
 .delete-btn:hover {
   background: #ffcdd2;
 }
 
-
-/* Ô input khi đang sửa */
 .edit-input {
   font-size: 15px;
   padding: 4px 8px;
@@ -189,20 +175,19 @@ body {
   outline: none;
   width: 100%;
   color: #333;
-  margin-bottom: 2px; 
+  margin-bottom: 2px;
 }
 
-/* Nút Lưu (biến hình từ nút Sửa) */
 .save-btn {
-  background: #e8f5e9 !important; 
+  background: #e8f5e9 !important;
   color: #2e7d32 !important;
   font-weight: 600;
 }
+
 .save-btn:hover {
   background: #c8e6c9 !important;
 }
 
-/* Ô input nhập chữ khi sửa */
 .edit-input {
   font-size: 15px;
   padding: 5px 8px;
@@ -214,7 +199,6 @@ body {
   margin-bottom: 4px;
 }
 
-/* Ô input chọn ngày khi sửa */
 .edit-date-input {
   font-family: inherit;
   font-size: 13px;
@@ -225,18 +209,15 @@ body {
   color: #555;
   cursor: pointer;
 }
-/* ... Giữ nguyên các phần CSS cũ ... */
-/* Chỉ thêm/sửa đoạn cuối này */
 
 .input-row-secondary {
   margin-top: 12px;
   display: flex;
-  gap: 52px; /* Khoảng cách giữa ô nhập và nút AI */
+  gap: 52px;
 }
 
-/* Ô nhập Context/Prompt */
 #ai-context {
-  flex: 1; /* Chiếm hết chỗ còn lại */
+  flex: 1;
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #e0e0e0;
@@ -252,7 +233,6 @@ body {
   box-shadow: 0 0 0 2px rgba(123, 92, 255, 0.1);
 }
 
-/* Nút AI Magic */
 #ai-btn {
   padding: 0 16px;
   border: none;
@@ -261,7 +241,7 @@ body {
   font-weight: 700;
   cursor: pointer;
   color: #fff;
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); /* Màu pastel cầu vồng */
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
   background-size: 200% 200%;
   transition: background 0.3s;
 }
@@ -271,7 +251,6 @@ body {
   box-shadow: 0 4px 12px rgba(255, 154, 158, 0.4);
 }
 
-/* Hiển thị dòng Context trong danh sách */
 .todo-context-display {
   font-size: 13px;
   color: #666;
@@ -280,10 +259,9 @@ body {
   background: #f4f4f4;
   padding: 4px 8px;
   border-radius: 6px;
-  display: inline-block; /* Chỉ bao quanh chữ */
+  display: inline-block;
 }
 
-/* Input sửa context */
 .edit-context-input {
   font-size: 13px;
   padding: 6px 8px;
@@ -295,25 +273,22 @@ body {
   margin-top: 4px;
   background: #fafafa;
 }
-/* --- TOAST NOTIFICATION (Thông báo đẹp) --- */
+
 #toast-box {
   position: fixed;
-  top: -100px; /* Ban đầu ẩn ở tít trên cao */
+  top: -100px;
   left: 50%;
-  transform: translateX(-50%); /* Căn giữa màn hình */
-  
-  background: rgba(18, 3, 36, 0.95); /* Màu nền tối đậm */
+  transform: translateX(-50%);
+  background: rgba(18, 3, 36, 0.95);
   color: #fff;
   padding: 15px 25px;
-  border-radius: 50px; /* Bo tròn như viên thuốc */
-  border: 1px solid #d000ff; /* Viền tím phát sáng */
+  border-radius: 50px;
+  border: 1px solid #d000ff;
   box-shadow: 0 0 20px rgba(208, 0, 255, 0.4);
-  
   font-size: 14px;
   font-weight: 600;
-  z-index: 1000; /* Nằm trên tất cả mọi thứ */
-  transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Hiệu ứng nảy */
-  
+  z-index: 1000;
+  transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -322,7 +297,6 @@ body {
   text-align: center;
 }
 
-/* Class này được JS thêm vào để hiện thông báo */
 #toast-box.show {
-  top: 30px; /* Trượt xuống vị trí hiển thị */
+  top: 30px;
 }
