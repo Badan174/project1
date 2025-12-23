@@ -2,8 +2,6 @@ console.log("MAIN.JS LOADED");
 
 const API_BASE = "http://localhost:8080";
 
-
-// ====== UI ELEMENTS  ======
 const input = document.getElementById("todo-input");
 const deadlineInput = document.getElementById("todo-deadline");
 const contextInput = document.getElementById("ai-context");
@@ -12,12 +10,32 @@ const aiBtn = document.getElementById("ai-btn");
 const todoList = document.getElementById("todo-list");
 const toastBox = document.getElementById("toast-box");
 
+const authView = document.getElementById("auth-view");
+const appView = document.getElementById("app-view");
+
 // Auth UI
 const emailEl = document.getElementById("email");
 const passwordEl = document.getElementById("password");
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const authStatus = document.getElementById("auth-status");
+const userBar = document.getElementById("user-bar");
+const userNameEl = document.getElementById("user-name");
+
+const notifyBtn = document.getElementById("notify-btn");
+const notifyPanel = document.getElementById("notify-panel");
+const notifyBadge = document.getElementById("notify-badge");
+const notifyList = document.getElementById("notify-list");
+
+function setUserName(name) {
+  localStorage.setItem("userName", name || "");
+}
+function getUserName() {
+  return localStorage.getItem("userName") || "";
+}
+function clearUserName() {
+  localStorage.removeItem("userName");
+}
 
 // ====== TOAST ======
 let toastTimeout;
@@ -40,25 +58,42 @@ function clearToken() {
   localStorage.removeItem("token");
 }
 
+// ====== 2 LUỒNG: LOGIN vs APP ======
 function renderAuthState() {
+  
   const token = getToken();
-  if (token) {
-    if (loginBtn) loginBtn.style.display = "none";
-    if (logoutBtn) logoutBtn.style.display = "inline-block";
-    if (authStatus) authStatus.textContent = "Đã đăng nhập ✅";
-  } else {
-    if (loginBtn) loginBtn.style.display = "inline-block";
-    if (logoutBtn) logoutBtn.style.display = "none";
-    if (authStatus) authStatus.textContent = "Chưa đăng nhập";
+  const isLoggedIn = !!token;
+
+  
+  if (authView && appView) {
+    authView.classList.toggle("hidden", isLoggedIn);
+    appView.classList.toggle("hidden", !isLoggedIn);
+  }
+
+  
+  if (loginBtn) loginBtn.style.display = isLoggedIn ? "none" : "inline-block";
+  if (logoutBtn) logoutBtn.style.display = isLoggedIn ? "inline-block" : "none";
+  if (userBar) userBar.classList.toggle("hidden", !isLoggedIn);
+
+  
+  if (userNameEl) userNameEl.textContent = isLoggedIn ? getUserName() : "";
+  if (authStatus) authStatus.textContent = isLoggedIn ? "Đã đăng nhập ✅" : "Chưa đăng nhập";
+
+  
+  if (!isLoggedIn && todoList) {
+    todoList.innerHTML = "";
   }
 }
 
-// ====== API helper ======
+// ====== API ======
 async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
 
   const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const isAuthRoute = path.startsWith("/api/auth/");
+
+  // Auth routes (login/register) 
+  if (token && !isAuthRoute) headers.Authorization = `Bearer ${token}`;
 
   if (options.body && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
@@ -68,10 +103,33 @@ async function apiFetch(path, options = {}) {
 
   if (res.status === 204) return null;
 
+  
   let data = null;
   const ct = res.headers.get("content-type") || "";
   if (ct.includes("application/json")) {
     data = await res.json().catch(() => null);
+  } else {
+    const text = await res.text().catch(() => "");
+    if (text) data = { message: text };
+  }
+
+  
+  if (res.status === 401) {
+    
+    if (!isAuthRoute && !token) {
+      throw new Error(data?.message || "Bạn cần đăng nhập");
+    }
+
+    
+    if (!isAuthRoute && token) {
+      clearToken();
+      clearUserName();
+      renderAuthState();
+      throw new Error(data?.message || "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
+    }
+
+    
+    throw new Error(data?.message || "Sai email hoặc mật khẩu");
   }
 
   if (!res.ok) throw new Error(data?.message || `HTTP ${res.status}`);
@@ -97,8 +155,13 @@ loginBtn?.addEventListener("click", async () => {
     });
 
     setToken(data.token);
+    setUserName(data.user?.name || email.split("@")[0]);
     renderAuthState();
     showToast("✅ Login thành công");
+
+    if (emailEl) emailEl.value = "";
+    if (passwordEl) passwordEl.value = "";
+
     await loadTodos();
   } catch (e) {
     showToast("❌ " + e.message);
@@ -107,14 +170,43 @@ loginBtn?.addEventListener("click", async () => {
 
 logoutBtn?.addEventListener("click", () => {
   clearToken();
+  clearUserName();
   renderAuthState();
-  if (todoList) todoList.innerHTML = "";
   showToast("👋 Đã logout");
 });
 
+notifyBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  notifyPanel?.classList.toggle("hidden");
+});
+
+
+document.addEventListener("click", () => {
+  if (notifyPanel && !notifyPanel.classList.contains("hidden")) {
+    notifyPanel.classList.add("hidden");
+  }
+});
+
+function setNotifications(items = []) {
+  if (!notifyList || !notifyBadge) return;
+
+  if (!items.length) {
+    notifyList.innerHTML = `<div class="notify-empty">Chưa có thông báo</div>`;
+    notifyBadge.classList.add("hidden");
+    notifyBadge.textContent = "0";
+    return;
+  }
+
+  notifyBadge.classList.remove("hidden");
+  notifyBadge.textContent = String(items.length);
+
+  notifyList.innerHTML = items
+    .map((it) => `<div style="padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.06);">${it}</div>`)
+    .join("");
+}
+
 // ====== RENDER ======
 function createTodoItem(todo) {
-  
   const id = todo.id ?? todo.todo_id;
   if (!id) console.warn("Todo thiếu id:", todo);
 
@@ -173,7 +265,6 @@ function createTodoItem(todo) {
     }
   }
 
-  
   contentDiv.appendChild(span);
   if (context) contentDiv.appendChild(contextSpan);
   contentDiv.appendChild(dateSpan);
@@ -200,20 +291,19 @@ function createTodoItem(todo) {
 
   applyDoneStyle();
 
-  
-  async function syncComplete() {
-    try {
-      if (!id) return showToast("❌ Todo thiếu id");
-      await apiFetch(`/api/todos/${id}/complete`, {
-        method: "PATCH",
-        body: JSON.stringify({ completed: checkbox.checked }),
-      });
-      applyDoneStyle();
-    } catch (e) {
-      checkbox.checked = !checkbox.checked;
-      showToast("❌ " + e.message);
+    async function syncComplete() {
+      try {
+        if (!id) return showToast("❌ Todo thiếu id");
+        await apiFetch(`/api/todos/${id}/complete`, {
+          method: "PATCH",
+          body: JSON.stringify({ completed: checkbox.checked }),
+        });
+        applyDoneStyle();
+      } catch (e) {
+        checkbox.checked = !checkbox.checked;
+        showToast("❌ " + e.message);
+      }
     }
-  }
 
   checkbox.addEventListener("change", () => {
     applyDoneStyle();
@@ -229,7 +319,6 @@ function createTodoItem(todo) {
     syncComplete();
   });
 
-  
   deleteBtn.addEventListener("click", async () => {
     try {
       if (!id) return showToast("❌ Todo thiếu id");
@@ -251,7 +340,6 @@ function createTodoItem(todo) {
     try {
       if (!id) return showToast("❌ Todo thiếu id");
 
-      
       const updated = await apiFetch(`/api/todos/${id}`, {
         method: "PATCH",
         body: JSON.stringify({
@@ -261,9 +349,9 @@ function createTodoItem(todo) {
         }),
       });
 
-      text = updated.title || newText;
-      context = updated.context || "";
-      deadline = fmtDate(updated.due_date);
+      text = updated?.title || newText;
+      context = updated?.context || "";
+      deadline = fmtDate(updated?.due_date);
 
       span.textContent = text;
       contextSpan.textContent = context;
